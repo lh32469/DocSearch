@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="${filename} + ' — Page ' + ${pageNum} + ' — Land Records'">Attachment — Land Records</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Source+Sans+3:wght@300;400;500;600&family=JetBrains+Mono:wght@400&display=swap"
+        rel="stylesheet">
+  <style>
+    :root {
+      --ink:           #1c2b1e;
+      --ink-mid:       #2d4a30;
+      --paper:         #faf7f2;
+      --parchment:     #ede8da;
+      --accent:        #8b6914;
+      --accent-bright: #c4953a;
+      --border:        #d4c9a8;
+      --border-dark:   #b5a88a;
+      --muted:         #7a7060;
+      --shadow-sm:     0 1px 3px rgba(28,43,30,.08), 0 1px 2px rgba(28,43,30,.05);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: 'Source Sans 3', Georgia, sans-serif;
+      background: #2a2a2a;
+      color: var(--ink);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      background: var(--ink);
+      color: #fff;
+      height: 56px;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      z-index: 10;
+      box-shadow: 0 2px 10px rgba(0,0,0,.35);
+    }
+
+    .topbar-brand {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .topbar-seal {
+      width: 30px;
+      height: 30px;
+      border: 1.5px solid var(--accent-bright);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-bright);
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .topbar-name {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: .02em;
+      line-height: 1.2;
+    }
+
+    .topbar-sub {
+      font-size: .65rem;
+      color: rgba(255,255,255,.4);
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      font-weight: 300;
+    }
+
+    /* ── VIEWER BAND ── */
+    .viewer-band {
+      background: var(--ink-mid);
+      padding: .6rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-shrink: 0;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      font-size: .72rem;
+      color: rgba(255,255,255,.5);
+      text-decoration: none;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-weight: 500;
+      white-space: nowrap;
+      transition: color .12s;
+    }
+
+    .back-link:hover { color: var(--accent-bright); }
+    .back-link::before { content: '←'; font-size: .85rem; }
+
+    .viewer-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: .95rem;
+      color: rgba(255,255,255,.85);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+
+    .viewer-page-info {
+      font-size: .72rem;
+      color: rgba(255,255,255,.4);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* ── SPLIT VIEW ── */
+    .split-view {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    /* Left panel — image */
+    .panel-image {
+      flex: 0 0 50%;
+      overflow: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      background: #2a2a2a;
+      border-right: 1px solid rgba(255,255,255,.1);
+    }
+
+    #page-image {
+      max-width: 100%;
+      max-height: calc(100vh - 172px);
+      object-fit: contain;
+      display: block;
+      box-shadow: 0 8px 40px rgba(0,0,0,.6);
+      transition: transform .25s ease;
+      background: #fff;
+    }
+
+    /* Right panel — extracted text */
+    .panel-text {
+      flex: 0 0 50%;
+      flex-shrink: 0;
+      overflow-y: auto;
+      background: var(--paper);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-text-header {
+      padding: .85rem 1.5rem .6rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--parchment);
+      flex-shrink: 0;
+    }
+
+    .panel-text-label {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .panel-text-body {
+      flex: 1;
+      padding: 1.25rem 1.5rem;
+      overflow-y: auto;
+    }
+
+    .text-line {
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
+      font-size: .78rem;
+      line-height: 1.65;
+      color: var(--ink);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .text-empty {
+      font-size: .82rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* ── CONTROLS BAR ── */
+    .controls {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      padding: .75rem 2rem;
+      background: rgba(28,43,30,.92);
+      border-top: 1px solid rgba(255,255,255,.08);
+      backdrop-filter: blur(6px);
+    }
+
+    .ctrl-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      padding: .45em 1em;
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 2px;
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.75);
+      font-size: .8rem;
+      font-family: inherit;
+      letter-spacing: .05em;
+      cursor: pointer;
+      transition: background .12s, border-color .12s, color .12s;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .ctrl-btn:hover:not(:disabled) {
+      background: rgba(196,149,58,.18);
+      border-color: var(--accent-bright);
+      color: var(--accent-bright);
+    }
+
+    .ctrl-btn:disabled {
+      opacity: .3;
+      cursor: not-allowed;
+    }
+
+    .ctrl-btn-icon {
+      font-size: 1rem;
+      line-height: 1;
+      display: inline-block;
+    }
+
+    .ctrl-divider {
+      width: 1px;
+      height: 24px;
+      background: rgba(255,255,255,.15);
+      margin: 0 .25rem;
+    }
+
+    .ctrl-hint {
+      font-size: .64rem;
+      color: rgba(255,255,255,.25);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-left: .5rem;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── TOPBAR ── -->
+<header class="topbar">
+  <a href="/search" class="topbar-brand">
+    <div class="topbar-seal">⚖</div>
+    <div>
+      <div class="topbar-name">Document Search</div>
+      <div class="topbar-sub">Land Records System</div>
+    </div>
+  </a>
+</header>
+
+<!-- ── VIEWER BAND ── -->
+<div class="viewer-band">
+  <a th:href="@{/document(docId=${docId},q=${query})}" class="back-link">All Pages</a>
+  <div class="viewer-title" th:text="${filename}"></div>
+  <div class="viewer-page-info"
+       th:text="'Page ' + ${pageNum} + ' of ' + ${totalPages}"></div>
+</div>
+
+<!-- ── SPLIT VIEW ── -->
+<div class="split-view">
+
+  <!-- Left: page image -->
+  <div class="panel-image">
+    <img id="page-image"
+         th:src="@{/api/document/attachment(docId=${docId},name=${name})}"
+         th:alt="'Page ' + ${pageNum}">
+  </div>
+
+  <!-- Right: extracted text -->
+  <div class="panel-text">
+    <div class="panel-text-header">
+      <div class="panel-text-label">Extracted Text — Page <span th:text="${pageNum}"></span></div>
+    </div>
+    <div class="panel-text-body">
+      <div th:if="${#lists.isEmpty(lines)}" class="text-empty">
+        No text available for this page.
+      </div>
+      <div th:each="line : ${lines}" class="text-line" th:text="${line}"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── CONTROLS ── -->
+<div class="controls">
+
+  <!-- Prev page -->
+  <a th:if="${prevName != null}"
+     th:href="@{/document/attachment(docId=${docId},name=${prevName},q=${query})}"
+     class="ctrl-btn" title="Previous page (←)">
+    <span class="ctrl-btn-icon">←</span> Prev
+  </a>
+  <button th:if="${prevName == null}" class="ctrl-btn" disabled>
+    <span class="ctrl-btn-icon">←</span> Prev
+  </button>
+
+  <div class="ctrl-divider"></div>
+
+  <!-- Rotate left -->
+  <button class="ctrl-btn" onclick="rotate(-90)" title="Rotate left (L)">
+    <span class="ctrl-btn-icon">↺</span> Left
+  </button>
+
+  <!-- Rotate right -->
+  <button class="ctrl-btn" onclick="rotate(90)" title="Rotate right (R)">
+    <span class="ctrl-btn-icon">↻</span> Right
+  </button>
+
+  <div class="ctrl-divider"></div>
+
+  <!-- Next page -->
+  <a th:if="${nextName != null}"
+     th:href="@{/document/attachment(docId=${docId},name=${nextName},q=${query})}"
+     class="ctrl-btn" title="Next page (→)">
+    Next <span class="ctrl-btn-icon">→</span>
+  </a>
+  <button th:if="${nextName == null}" class="ctrl-btn" disabled>
+    Next <span class="ctrl-btn-icon">→</span>
+  </button>
+
+  <span class="ctrl-hint">R / L to rotate &nbsp;·&nbsp; ← → to navigate</span>
+</div>
+
+<script th:inline="javascript">
+  var rotation = 0;
+  var docId    = /*[[${docId}]]*/ '';
+  var query    = /*[[${query}]]*/ '';
+  var prevName = /*[[${prevName}]]*/ null;
+  var nextName = /*[[${nextName}]]*/ null;
+
+  function rotate(delta) {
+    rotation = (rotation + delta + 360) % 360;
+    var img = document.getElementById('page-image');
+    img.style.transform = 'rotate(' + rotation + 'deg)';
+
+    // Swap max-width / max-height constraints when image is sideways.
+    if (rotation === 90 || rotation === 270) {
+      img.style.maxWidth  = 'calc(100vh - 172px)';
+      img.style.maxHeight = '100%';
+    } else {
+      img.style.maxWidth  = '';
+      img.style.maxHeight = '';
+    }
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+      return;
+    }
+    if (e.key === 'r' || e.key === 'R' && !e.shiftKey) { rotate(90); }
+    if (e.key === 'l' || e.key === 'L' || (e.key === 'R' && e.shiftKey)) {
+      rotate(-90);
+    }
+    if (e.key === 'ArrowLeft'  && prevName) {
+      location.href = '/document/attachment?docId=' +
+        encodeURIComponent(docId) + '&name=' +
+        encodeURIComponent(prevName) + '&q=' + encodeURIComponent(query);
+    }
+    if (e.key === 'ArrowRight' && nextName) {
+      location.href = '/document/attachment?docId=' +
+        encodeURIComponent(docId) + '&name=' +
+        encodeURIComponent(nextName) + '&q=' + encodeURIComponent(query);
+    }
+  });
+</script>
+</body>
+</html>

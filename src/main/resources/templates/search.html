@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Document Search — Land Records</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Source+Sans+3:wght@300;400;500;600&family=JetBrains+Mono:wght@400&display=swap"
+        rel="stylesheet">
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-WP324RF71D"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-WP324RF71D', {
+      cookie_expires: 365 * 24 * 60 * 60, // 1 year in seconds
+      cookie_flags: 'SameSite=None;Secure'
+    });
+  </script>
+
+  <style>
+    :root {
+      --ink:           #1c2b1e;
+      --ink-mid:       #2d4a30;
+      --paper:         #faf7f2;
+      --parchment:     #ede8da;
+      --accent:        #8b6914;
+      --accent-bright: #c4953a;
+      --border:        #d4c9a8;
+      --border-dark:   #b5a88a;
+      --muted:         #7a7060;
+      --shadow-sm:     0 1px 3px rgba(28,43,30,.08), 0 1px 2px rgba(28,43,30,.05);
+      --shadow-md:     0 4px 12px rgba(28,43,30,.12), 0 2px 4px rgba(28,43,30,.08);
+      --shadow-lg:     0 8px 28px rgba(28,43,30,.18), 0 4px 8px rgba(28,43,30,.10);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Source Sans 3', Georgia, sans-serif;
+      background-color: var(--parchment);
+      color: var(--ink);
+      min-height: 100vh;
+      background-image:
+        radial-gradient(circle, rgba(139,105,20,.13) 1px, transparent 1px);
+      background-size: 22px 22px;
+    }
+
+    /* ── TOPBAR ─────────────────────────────────── */
+    .topbar {
+      background: var(--ink);
+      color: #fff;
+      height: 56px;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,0,0,.35);
+    }
+
+    .topbar-brand {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+    }
+
+    .topbar-seal {
+      width: 30px;
+      height: 30px;
+      border: 1.5px solid var(--accent-bright);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-bright);
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    .topbar-name {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: .02em;
+      line-height: 1.2;
+    }
+
+    .topbar-sub {
+      font-size: .65rem;
+      color: rgba(255,255,255,.4);
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      font-weight: 300;
+    }
+
+    .topbar-tag {
+      font-size: .68rem;
+      color: rgba(255,255,255,.35);
+      letter-spacing: .07em;
+      text-transform: uppercase;
+    }
+
+    /* ── SEARCH BAND ─────────────────────────────── */
+    .search-band {
+      background: var(--ink-mid);
+      padding: 2rem 2rem 2.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .search-band::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(135deg, rgba(196,149,58,.07) 0%, transparent 55%),
+        repeating-linear-gradient(
+          0deg, transparent, transparent 39px,
+          rgba(255,255,255,.025) 39px, rgba(255,255,255,.025) 40px
+        );
+      pointer-events: none;
+    }
+
+    .search-inner {
+      max-width: 740px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .search-eyebrow {
+      font-size: .68rem;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--accent-bright);
+      margin-bottom: 1.1rem;
+      font-weight: 500;
+    }
+
+    .search-row {
+      display: flex;
+      border-radius: 3px;
+      overflow: hidden;
+      box-shadow: 0 2px 20px rgba(0,0,0,.28), 0 0 0 1px rgba(196,149,58,.22);
+    }
+
+    .search-input {
+      flex: 1;
+      border: none;
+      padding: .875rem 1.2rem;
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 1rem;
+      background: #fff;
+      color: var(--ink);
+      outline: none;
+      transition: background .12s;
+      min-width: 0;
+    }
+
+    .search-input::placeholder { color: #a89e88; }
+    .search-input:focus { background: #fffef9; }
+
+    .search-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: .875rem 1.6rem;
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: .8rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background .12s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .search-btn:hover { background: var(--accent-bright); }
+
+    .search-hint {
+      margin-top: .7rem;
+      font-size: .78rem;
+      color: rgba(255,255,255,.38);
+      line-height: 1.6;
+    }
+
+    .search-hint code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .72rem;
+      color: var(--accent-bright);
+      background: rgba(255,255,255,.08);
+      padding: .1em .38em;
+      border-radius: 2px;
+      border: 1px solid rgba(196,149,58,.22);
+    }
+
+    /* ── MAIN ────────────────────────────────────── */
+    .main {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 2rem 2rem 5rem;
+    }
+
+    /* ── RESULT META ─────────────────────────────── */
+    .result-meta {
+      display: flex;
+      align-items: center;
+      gap: .65rem;
+      margin-bottom: 1.75rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .result-count {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: .95rem;
+      color: var(--ink);
+    }
+
+    .result-sep { color: var(--border-dark); font-size: .9rem; }
+
+    .result-q {
+      font-size: .8rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* ── LANDING STATE ───────────────────────────── */
+    .landing {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 5rem 1rem;
+    }
+
+    .landing-icon {
+      width: 76px;
+      height: 76px;
+      color: var(--ink);
+      opacity: .25;
+      margin-bottom: 1.75rem;
+    }
+
+    .landing-heading {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.7rem;
+      font-weight: 400;
+      letter-spacing: -.01em;
+      color: var(--ink);
+      margin-bottom: .65rem;
+    }
+
+    .landing-body {
+      font-size: .95rem;
+      color: var(--muted);
+      max-width: 420px;
+      line-height: 1.75;
+      font-weight: 300;
+    }
+
+    /* ── NO RESULTS ──────────────────────────────── */
+    .no-results {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 4rem 1rem;
+    }
+
+    .no-results-glyph {
+      font-size: 2.25rem;
+      opacity: .35;
+      margin-bottom: 1rem;
+    }
+
+    .no-results-heading {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.2rem;
+      color: var(--ink);
+      margin-bottom: .4rem;
+    }
+
+    .no-results-body {
+      font-size: .9rem;
+      color: var(--muted);
+      max-width: 360px;
+      line-height: 1.65;
+    }
+
+    .no-results-body em { color: var(--ink); font-style: italic; }
+
+    .no-results-tip {
+      margin-top: 1.25rem;
+      font-size: .78rem;
+      color: var(--muted);
+      background: rgba(139,105,20,.05);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: .55rem 1rem;
+    }
+
+    .no-results-tip code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .72rem;
+      color: var(--accent);
+    }
+
+    /* ── CARD GRID ───────────────────────────────── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 620px)  { .card-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1060px) { .card-grid { grid-template-columns: repeat(3, 1fr); } }
+
+    /* ── DOCUMENT CARD ───────────────────────────── */
+    .doc-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+      position: relative;
+    }
+
+    .doc-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-bright));
+      opacity: 0;
+      transition: opacity .15s ease;
+    }
+
+    .doc-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--border-dark);
+    }
+
+    .doc-card:hover::before { opacity: 1; }
+
+    .doc-card-link {
+      display: block;
+      background: #f6f2ea;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .doc-card-link::after {
+      content: '\2197';  /* ↗ */
+      position: absolute;
+      top: .55rem;
+      right: .55rem;
+      width: 26px;
+      height: 26px;
+      background: rgba(28,43,30,.6);
+      color: #fff;
+      border-radius: 2px;
+      text-align: center;
+      line-height: 26px;
+      font-size: .8rem;
+      opacity: 0;
+      transition: opacity .15s ease;
+    }
+
+    .doc-card:hover .doc-card-link::after { opacity: 1; }
+
+    .doc-card-img {
+      width: 100%;
+      display: block;
+      object-fit: contain;
+      max-height: 460px;
+      background: #fff;
+    }
+
+    .doc-card-footer {
+      padding: .7rem 1rem .8rem;
+    }
+
+    .doc-filename {
+      font-size: .84rem;
+      font-weight: 600;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.35;
+    }
+
+    .doc-page-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .28rem;
+      margin-top: .28rem;
+      font-size: .69rem;
+      color: var(--muted);
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    .doc-page-badge::before {
+      content: '';
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      background: var(--accent-bright);
+      border-radius: 50%;
+      opacity: .75;
+      flex-shrink: 0;
+    }
+
+    .doc-card-meta {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      margin-top: .28rem;
+      flex-wrap: wrap;
+    }
+
+    .conf-badge {
+      font-size: .69rem;
+      letter-spacing: .04em;
+      font-weight: 600;
+      padding: .1em .45em;
+      border-radius: 2px;
+    }
+
+    .conf-high { color: #2a6e35; background: rgba(42,110,53,.1); }
+    .conf-mid  { color: #8b6914; background: rgba(139,105,20,.1); }
+    .conf-low  { color: #963030; background: rgba(150,48,48,.1);  }
+
+    /* ── PAGINATION ──────────────────────────────── */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .35rem;
+      padding: 2.5rem 0 1rem;
+      flex-wrap: wrap;
+    }
+
+    .page-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 34px;
+      height: 34px;
+      padding: 0 .6rem;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      background: #fff;
+      color: var(--ink);
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: .82rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: background .12s, border-color .12s, color .12s;
+      cursor: pointer;
+    }
+
+    .page-btn:hover {
+      background: var(--parchment);
+      border-color: var(--border-dark);
+    }
+
+    .page-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      cursor: default;
+    }
+
+    .page-btn.disabled {
+      color: var(--border-dark);
+      background: #fff;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .page-ellipsis {
+      color: var(--muted);
+      font-size: .85rem;
+      padding: 0 .2rem;
+      line-height: 34px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── TOPBAR ── -->
+<header class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-seal">⚖</div>
+    <div>
+      <div class="topbar-name">Document Search
+        <span th:if="${totalDocCount > 0}"
+              th:text="'(' + ${#numbers.formatInteger(totalDocCount, 1, 'COMMA')} + ' total docs' + (${transcriptionPct} != null ? ', ' + ${transcriptionPct} + '% transcribed' : '') + ')'"
+              style="font-size:.75em;font-weight:300;opacity:.55;margin-left:.3em;"></span>
+      </div>
+      <div class="topbar-sub">Land Records System</div>
+    </div>
+  </div>
+  <div class="topbar-tag">PDX Records</div>
+</header>
+
+<!-- ── SEARCH BAND ── -->
+<div class="search-band">
+  <div class="search-inner">
+    <div class="search-eyebrow">Document Archive</div>
+    <form method="get" action="/search">
+      <div class="search-row">
+        <input type="text" name="q" th:value="${query}"
+               class="search-input"
+               placeholder='right of way  ·  Grant County  ·  "access road"'>
+        <button type="submit" class="search-btn">Search</button>
+      </div>
+      <p class="search-hint">
+        Lucene syntax supported &mdash;
+        <code>AND</code> <code>OR</code> <code>NOT</code>
+        &nbsp;&middot;&nbsp; wildcards <code>parcel*</code>
+        &nbsp;&middot;&nbsp; phrases <code>"right of way"</code>
+      </p>
+    </form>
+  </div>
+</div>
+
+<!-- ── MAIN ── -->
+<div class="main">
+
+  <!-- Result count -->
+  <div th:if="${totalCount > 0}" class="result-meta">
+    <span class="result-count">
+      Showing <span th:text="${pageStart}"></span>&ndash;<span th:text="${pageEnd}"></span>
+      of <span th:text="${totalCount}"></span> document(s)
+    </span>
+    <span class="result-sep">&middot;</span>
+    <span class="result-q">&ldquo;<span th:text="${query}"></span>&rdquo;</span>
+  </div>
+
+  <!-- Landing state -->
+  <div th:if="${#strings.isEmpty(query)}" class="landing">
+    <svg class="landing-icon" viewBox="0 0 76 76" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="10" y="6" width="42" height="54" rx="2" stroke="currentColor" stroke-width="2.5"/>
+      <rect x="18" y="20" width="26" height="2" rx="1" fill="currentColor" opacity=".55"/>
+      <rect x="18" y="28" width="20" height="2" rx="1" fill="currentColor" opacity=".55"/>
+      <rect x="18" y="36" width="24" height="2" rx="1" fill="currentColor" opacity=".55"/>
+      <rect x="18" y="44" width="16" height="2" rx="1" fill="currentColor" opacity=".55"/>
+      <circle cx="56" cy="54" r="13" stroke="currentColor" stroke-width="2.5"/>
+      <line x1="65.5" y1="63.5" x2="72" y2="70" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+    <h2 class="landing-heading">Search the Document Archive</h2>
+    <p class="landing-body">
+      Full-text search across scanned documents. Enter keywords,
+      parcel numbers, grantee names, or legal descriptions to locate
+      recorded documents.
+    </p>
+  </div>
+
+  <!-- No results -->
+  <div th:if="${not #strings.isEmpty(query) and #lists.isEmpty(cards)}" class="no-results">
+    <div class="no-results-glyph">📋</div>
+    <h3 class="no-results-heading">No instruments found</h3>
+    <p class="no-results-body">
+      No recorded documents matched
+      &ldquo;<em th:text="${query}"></em>&rdquo;.
+    </p>
+    <p class="no-results-tip">
+      Try a wildcard: <code>grant*</code> &nbsp;&middot;&nbsp;
+      broaden with <code>OR</code> &nbsp;&middot;&nbsp;
+      verify spelling
+    </p>
+  </div>
+
+  <!-- Card grid — one card per document, links to full document view -->
+  <div class="card-grid" th:if="${not #lists.isEmpty(cards)}">
+    <div th:each="card : ${cards}" class="doc-card">
+      <a th:href="@{/document(docId=${card.docId},q=${query})}" class="doc-card-link">
+        <img th:src="@{/api/document/attachment(docId=${card.docId},name=${card.attachmentName})}"
+             class="doc-card-img"
+             th:alt="${card.filename}">
+      </a>
+      <div class="doc-card-footer">
+        <div class="doc-filename" th:text="${card.filename}"></div>
+        <div class="doc-card-meta">
+          <span th:if="${card.totalPages > 1}"
+                class="doc-page-badge"
+                th:text="${card.totalPages} + ' pages'"></span>
+          <span class="conf-badge"
+                th:classappend="${card.confidence >= 80} ? ' conf-high' : (${card.confidence >= 60} ? ' conf-mid' : ' conf-low')"
+                th:text="${#numbers.formatDecimal(card.confidence, 1, 1)} + '%'"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <nav th:if="${totalPages > 1}" class="pagination" aria-label="Search results pages">
+
+    <!-- Previous -->
+    <a th:if="${currentPage > 1}"
+       th:href="@{/search(q=${query},page=${currentPage - 1})}"
+       class="page-btn" aria-label="Previous page">&larr;</a>
+    <span th:unless="${currentPage > 1}" class="page-btn disabled" aria-disabled="true">&larr;</span>
+
+    <!-- Page numbers (–1 sentinel = ellipsis) -->
+    <th:block th:each="pn : ${pageNumbers}">
+      <span th:if="${pn == -1}" class="page-ellipsis">&hellip;</span>
+      <a th:unless="${pn == -1}"
+         th:href="@{/search(q=${query},page=${pn})}"
+         th:text="${pn}"
+         th:classappend="${pn == currentPage} ? ' active'"
+         class="page-btn"></a>
+    </th:block>
+
+    <!-- Next -->
+    <a th:if="${currentPage < totalPages}"
+       th:href="@{/search(q=${query},page=${currentPage + 1})}"
+       class="page-btn" aria-label="Next page">&rarr;</a>
+    <span th:unless="${currentPage < totalPages}" class="page-btn disabled" aria-disabled="true">&rarr;</span>
+
+  </nav>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,14 @@
+
+spring:
+  boot:
+    admin:
+      client:
+        url: http://sba.sba-java25:8085
+        username: admin
+        password: ENC(6lF375rV3x89l8garnViYVBUmUgWq34C/78tnmWTUGq87jW8byeS9pSsJgvsP7CI)
+        auto-registration: true
+        auto-deregistration: true
+        instance:
+          name: ${spring.application.name}
+          prefer-ip: true
+          management-base-url: http://${POD_IP}:8090

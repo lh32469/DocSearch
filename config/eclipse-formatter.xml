@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<profiles version="21">
+  <profile kind="CodeFormatterProfile" name="PrimeFilter" version="21">
+
+    <!-- ── Indentation: 2 spaces, no tabs ─────────── -->
+    <setting id="org.eclipse.jdt.core.formatter.tabulation.char"
+             value="space"/>
+    <setting id="org.eclipse.jdt.core.formatter.tabulation.size"
+             value="2"/>
+    <setting id="org.eclipse.jdt.core.formatter.indentation.size"
+             value="2"/>
+
+    <!--
+      Continuation indent = 1 unit (1 × 2 spaces = 2 spaces).
+      CLAUDE.md: "Wrap … indenting the continuation line by
+      one level relative to the opening statement."
+    -->
+    <setting id="org.eclipse.jdt.core.formatter.continuation_indentation"
+             value="1"/>
+    <setting
+      id="org.eclipse.jdt.core.formatter.continuation_indentation_for_array_initializer"
+      value="1"/>
+
+    <!-- ── Line length: 85 characters ────────────── -->
+    <setting id="org.eclipse.jdt.core.formatter.lineSplit"
+             value="85"/>
+    <setting id="org.eclipse.jdt.core.formatter.comment.line_length"
+             value="85"/>
+    <setting
+      id="org.eclipse.jdt.core.formatter.join_wrapped_lines"
+      value="true"/>
+
+    <!-- ── Braces: opening brace on same line ─────── -->
+    <setting
+      id="org.eclipse.jdt.core.formatter.brace_position_for_type_declaration"
+      value="end_of_line"/>
+    <setting
+      id="org.eclipse.jdt.core.formatter.brace_position_for_method_declaration"
+      value="end_of_line"/>
+    <setting
+      id="org.eclipse.jdt.core.formatter.brace_position_for_constructor_declaration"
+      value="end_of_line"/>
+    <setting
+      id="org.eclipse.jdt.core.formatter.brace_position_for_block"
+      value="end_of_line"/>
+    <setting
+      id="org.eclipse.jdt.core.formatter.brace_position_for_block_in_case"
+      value="end_of_line"/>
+    <setting
+      id="org.eclipse.jdt.core.formatter.brace_position_for_switch"
+      value="end_of_line"/>
+    <setting
+      id="org.eclipse.jdt.core.formatter.brace_position_for_enum_declaration"
+      value="end_of_line"/>
+    <setting
+      id="org.eclipse.jdt.core.formatter.brace_position_for_enum_constant"
+      value="end_of_line"/>
+    <setting
+      id="org.eclipse.jdt.core.formatter.brace_position_for_record_declaration"
+      value="end_of_line"/>
+    <setting
+      id="org.eclipse.jdt.core.formatter.brace_position_for_annotation_type_declaration"
+      value="end_of_line"/>
+    <setting
+      id="org.eclipse.jdt.core.formatter.brace_position_for_lambda_body"
+      value="end_of_line"/>
+
+    <!-- ── Blank lines ─────────────────────────────── -->
+    <!-- One blank line between methods. -->
+    <setting
+      id="org.eclipse.jdt.core.formatter.blank_lines_before_method"
+      value="2"/>
+    <!-- No blank line before the first declaration in a class. -->
+    <setting
+      id="org.eclipse.jdt.core.formatter.blank_lines_before_first_class_body_declaration"
+      value="0"/>
+    <!-- No extra blank lines between fields. -->
+    <setting
+      id="org.eclipse.jdt.core.formatter.blank_lines_before_field"
+      value="0"/>
+    <setting
+      id="org.eclipse.jdt.core.formatter.blank_lines_after_imports"
+      value="1"/>
+    <setting
+      id="org.eclipse.jdt.core.formatter.blank_lines_after_package"
+      value="1"/>
+    <!-- One blank line between import groups. -->
+    <setting
+      id="org.eclipse.jdt.core.formatter.blank_lines_between_import_groups"
+      value="1"/>
+    <setting
+      id="org.eclipse.jdt.core.formatter.blank_lines_between_type_declarations"
+      value="1"/>
+    <!-- Preserve up to 1 consecutive blank line. -->
+    <setting
+      id="org.eclipse.jdt.core.formatter.number_of_empty_lines_to_preserve"
+      value="1"/>
+    <!-- One blank line at the start of a method body. -->
+    <setting
+      id="org.eclipse.jdt.core.formatter.blank_lines_at_beginning_of_method_body"
+      value="1"/>
+
+    <!--
+      Comments: do NOT reformat.  Existing Javadoc uses
+      deliberate line breaks, <p> tags, and @param/@return
+      layout that the Eclipse comment formatter would alter.
+    -->
+    <setting
+      id="org.eclipse.jdt.core.formatter.comment.format_javadoc_comments"
+      value="false"/>
+    <setting
+      id="org.eclipse.jdt.core.formatter.comment.format_line_comments"
+      value="false"/>
+    <setting
+      id="org.eclipse.jdt.core.formatter.comment.format_block_comments"
+      value="false"/>
+    <setting
+      id="org.eclipse.jdt.core.formatter.comment.format_source"
+      value="false"/>
+
+    <!--
+      @formatter:off / @formatter:on tags let individual
+      code blocks opt out of formatting when needed.
+    -->
+    <setting
+      id="org.eclipse.jdt.core.formatter.use_on_off_tags"
+      value="true"/>
+
+    <!-- ── Java source level ───────────────────────── -->
+    <setting
+      id="org.eclipse.jdt.core.compiler.source"
+      value="21"/>
+    <setting
+      id="org.eclipse.jdt.core.compiler.compliance"
+      value="21"/>
+    <setting
+      id="org.eclipse.jdt.core.compiler.codegen.targetPlatform"
+      value="21"/>
+
+    <!-- ── Wrapping policy: only wrap when needed ──── -->
+    <!--
+      CLAUDE.md: "Only wrap when the line would exceed 85
+      characters — do not break lines that fit on one line."
+    -->
+    <!--
+      Call-site arguments: compact wrap (keep as many args
+      per line as possible), 1-level continuation indent.
+      16 = WRAP_COMPACT + INDENT_DEFAULT
+    -->
+    <setting
+      id="org.eclipse.jdt.core.formatter.alignment_for_arguments_in_method_invocation"
+      value="16"/>
+    <!--
+      Method chaining: each subsequent chained call (.foo().bar()) goes on its
+      own line with one continuation indent.
+      48 = WRAP_ONE_PER_LINE (3×16) + INDENT_DEFAULT
+    -->
+    <setting
+      id="org.eclipse.jdt.core.formatter.alignment_for_selector_in_method_invocation"
+      value="48"/>
+    <setting
+      id="org.eclipse.jdt.core.formatter.alignment_for_arguments_in_allocation_expression"
+      value="16"/>
+    <!--
+      Method-declaration parameters: one per line when the
+      signature exceeds 85 chars, 1-level continuation indent.
+      48 = WRAP_ONE_PER_LINE (3×16) + INDENT_DEFAULT
+    -->
+    <setting
+      id="org.eclipse.jdt.core.formatter.alignment_for_parameters_in_method_declaration"
+      value="48"/>
+    <setting
+      id="org.eclipse.jdt.core.formatter.alignment_for_superinterfaces_in_type_declaration"
+      value="16"/>
+    <setting
+      id="org.eclipse.jdt.core.formatter.alignment_for_throws_clause_in_method_declaration"
+      value="16"/>
+    <setting
+      id="org.eclipse.jdt.core.formatter.alignment_for_conditional_expression"
+      value="16"/>
+
+  </profile>
+</profiles>

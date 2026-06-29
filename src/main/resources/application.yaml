@@ -1,0 +1,61 @@
+spring:
+  application:
+    name: DocSearch
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+logging:
+  pattern:
+    console: "%d{HH:mm:ss.SSS} %-5level %logger{25}.%M - %msg%n"
+  level:
+    net:
+      ravendb:
+        client:
+          documents:
+            session:
+              operations: WARN
+    org:
+      gpc4j:
+        docs:
+          services: INFO
+          controller: INFO
+          tasks: INFO
+
+server:
+  port: 8085
+
+management:
+  server:
+    port: 8090
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+# RavenDB Configuration
+ravendb:
+  database: DocSearch
+#  urls: injected from Jenkins Global properties RAVENDB_URLS
+
+# PageRefreshTask schedule
+page-refresh:
+  fixed-rate: 60
+
+# OpenAI API
+openai:
+  api:
+    key: ENC(lJByx1KH1URD4tzh0V6Xet3C4JVrOH+CTxuUy8yeMbbNDKjHQvq+7Ltze4SCfYLai60Azf70LTCjHtmOEQvjHRSrpTybvYzl5C8jSXmhVYbgwWdgy22KOjwIH0kO5BEMlpriFzuudqo8CCX5zbBuK6X441gDGOHSQlefml2Fs5tuA2YJSDaPNw2UMltMr64LWxSldLhFV3yj2eYBqChRQtRdpn85awfrYD5PRo7jSuXrpqj5TTBHPhIoHjFqnZiQnZZfYE1QRNMKvWOsRGP1Sw==)
+
+# Anthropic API
+anthropic:
+  api:
+    key: ENC(sNtMvNePZBD/PjClry7hJMftX2k5S4O1k85J+5MsG9buD2TGtevk3/xFs5Pp1SuYY9eOnAgWC2HcvYKop+hcY57weCjtOM+YvkVqnkS5b7vcr1kcKawSGotB/0ns1G4J4gPicvnW8QXuJOuWtZWZs7TrLzOjf1yFvTkanfQqUq57CQ6isWSSZnBa4UZTHSY3)
+
+# ClockScheduler — user name of the GeminiApiKeys document with 8 keys
+clock-scheduler:
+  user: clock
