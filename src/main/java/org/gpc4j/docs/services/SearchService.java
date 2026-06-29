@@ -156,10 +156,10 @@ public class SearchService {
 
   /**
    * Translates a user-entered query into a RavenDB RQL {@code where} clause
-   * that searches both the nested {@code pages[].lines} field and the top-level
-   * {@code filename} field. Each term matches if it appears in either field, so
-   * searching for {@code cursive.png} will return documents whose filename
-   * matches as well as those whose page text matches.
+   * that searches the nested {@code pages[].lines} field via full-text search
+   * and the top-level {@code filename} field via exact equality. Combining both
+   * means a query like {@code cursive.png} returns documents whose filename
+   * matches exactly as well as those whose page text contains the term.
    *
    * @param q the raw query string entered by the user
    * @return a complete RQL query string
@@ -192,9 +192,9 @@ public class SearchService {
       rql
         .append("(search(pages[].lines, '")
         .append(escaped)
-        .append("') or search(filename, '")
+        .append("') or filename = '")
         .append(escaped)
-        .append("'))");
+        .append("')");
     }
     return rql.toString();
   }
