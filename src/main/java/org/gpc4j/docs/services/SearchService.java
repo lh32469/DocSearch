@@ -156,7 +156,10 @@ public class SearchService {
 
   /**
    * Translates a user-entered query into a RavenDB RQL {@code where} clause
-   * that searches the nested {@code pages[].lines} field.
+   * that searches both the nested {@code pages[].lines} field and the top-level
+   * {@code filename} field. Each term matches if it appears in either field, so
+   * searching for {@code cursive.png} will return documents whose filename
+   * matches as well as those whose page text matches.
    *
    * @param q the raw query string entered by the user
    * @return a complete RQL query string
@@ -185,10 +188,13 @@ public class SearchService {
       if (i > 0) {
         rql.append(' ').append(ops.get(i - 1)).append(' ');
       }
+      String escaped = terms.get(i).replace("'", "''");
       rql
-        .append("search(pages[].lines, '")
-        .append(terms.get(i).replace("'", "''"))
-        .append("')");
+        .append("(search(pages[].lines, '")
+        .append(escaped)
+        .append("') or search(filename, '")
+        .append(escaped)
+        .append("'))");
     }
     return rql.toString();
   }
