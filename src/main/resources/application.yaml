@@ -18,10 +18,7 @@ logging:
               operations: WARN
     org:
       gpc4j:
-        docs:
-          services: INFO
-          controller: INFO
-          tasks: INFO
+        docs: INFO
 
 server:
   port: 8085
