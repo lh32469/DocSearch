@@ -100,18 +100,12 @@ at startup by [Jasypt](https://github.com/ulisesbocchio/jasypt-spring-boot).
 ./mvnw spotless:apply
 ```
 
-## Docker / Kubernetes
+## Docker 
 
 ```bash
 ./mvnw clean package
-docker build -t easementservice:latest .
-kubectl apply -f k8s/configmap.yaml
-kubectl apply -f k8s/deployment.yaml
+docker build -t docservice:latest .
 ```
-
-The deployment mounts `easementservice-config` as a ConfigMap at
-`/usr/src/config`. The container runs with Shenandoah GC, 2 GB heap, and a
-2-CPU limit.
 
 ## Profiles
 
